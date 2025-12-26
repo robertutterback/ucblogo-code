@@ -96,6 +96,7 @@ PRIMTYPE prims[] = {
     {"array?", 1, 1, 1, PREFIX_PRIORITY, larrayp},
     {"ascii", 1, 1, 1, PREFIX_PRIORITY, lascii},
     {"ashift", 2, 2, 2, PREFIX_PRIORITY, lashift},
+    {"animationspeed", 0, 0, 0, PREFIX_PRIORITY, lanimationspeed},
 #ifdef OBJECTS
     {"ask", 2, 2, 2, MACRO_PRIORITY, lask},
 #endif
@@ -397,6 +398,7 @@ PRIMTYPE prims[] = {
 #endif
     {"setlibloc", 1, 1, 1, PREFIX_PRIORITY, lsetlibloc},
     {"setmargins", 1, 1, 1, PREFIX_PRIORITY, lsetmargins},
+    {"setanimationspeed", 1, 1, 1, PREFIX_PRIORITY, lsetanimationspeed},
     {"setpalette", 2, 2, 2, PREFIX_PRIORITY, lsetpalette},
     {"setpc", 1, 1, 1, PREFIX_PRIORITY, lsetpencolor},
     {"setpencolor", 1, 1, 1, PREFIX_PRIORITY, lsetpencolor},

@@ -473,6 +473,8 @@ extern NODE *lright(NODE *);
 extern NODE *lleft(NODE *);
 extern NODE *lforward(NODE *);
 extern NODE *lback(NODE *);
+extern NODE *lsetanimationspeed(NODE *);
+extern NODE *lanimationspeed(NODE *);
 extern NODE *lshowturtle(NODE *);
 extern NODE *lhideturtle(NODE *);
 extern NODE *lshownp(NODE *);

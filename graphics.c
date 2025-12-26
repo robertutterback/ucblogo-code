@@ -107,6 +107,22 @@ pen_info orig_pen;
 BOOLEAN refresh_p = TRUE;
 BOOLEAN doing_filled = FALSE;
 
+/* Animation speed in turtle units per second (0 = instant, no animation) */
+FLONUM animation_speed = 0.0;
+
+/************************************************************/
+/* Platform-independent sleep function for animation */
+
+#ifdef HAVE_WX
+extern void wxMilliSleep(unsigned long milliseconds);
+#define logo_sleep_ms(ms) wxMilliSleep(ms)
+#elif defined(WIN32)
+#define logo_sleep_ms(ms) Sleep(ms)
+#else
+#include <unistd.h>
+#define logo_sleep_ms(ms) usleep((ms) * 1000)
+#endif
+
 /************************************************************/
 
 double pfmod(double x, double y) {
@@ -333,7 +349,41 @@ void forward(FLONUM d) {
    // #endif
     prepare_to_draw;
     draw_turtle();
-    forward_helper(d);
+
+    /* Animation: break movement into segments if animation speed is set */
+    if (animation_speed > 0.0 && fabs(d) > 0.0) {
+	/* Determine segment size (in turtle units) and number of segments */
+	FLONUM segment_size = 5.0; /* pixels per segment for smooth animation */
+	FLONUM abs_distance = fabs(d);
+	int num_segments = (int)(abs_distance / segment_size);
+
+	/* Need at least 2 segments for animation to be visible */
+	if (num_segments < 2) num_segments = 2;
+	if (num_segments > 1000) num_segments = 1000; /* cap for performance */
+
+	FLONUM segment_distance = d / (FLONUM)num_segments;
+	/* Calculate delay in milliseconds per segment based on speed */
+	/* delay = (segment_distance / animation_speed) * 1000 */
+	FLONUM delay_ms = (fabs(segment_distance) / animation_speed) * 1000.0;
+
+	/* Minimum delay of 1ms, maximum of 1000ms per segment */
+	if (delay_ms < 1.0) delay_ms = 1.0;
+	if (delay_ms > 1000.0) delay_ms = 1000.0;
+
+	int i;
+	for (i = 0; i < num_segments; i++) {
+	    forward_helper(segment_distance);
+	    if (i < num_segments - 1) { /* Don't sleep after last segment */
+		draw_turtle(); /* Show turtle at intermediate position */
+		logo_sleep_ms((unsigned long)delay_ms);
+		draw_turtle(); /* Erase turtle before next segment */
+	    }
+	}
+    } else {
+	/* No animation - draw immediately */
+	forward_helper(d);
+    }
+
     draw_turtle();
     done_drawing;
     wanna_x = turtle_x;
@@ -561,6 +611,23 @@ NODE *lback(NODE *arg) {
 	forward(-d);
     }
     return(UNBOUND);
+}
+
+NODE *lsetanimationspeed(NODE *arg) {
+    FLONUM speed = get_number(arg);
+
+    if (NOT_THROWING) {
+	if (speed < 0.0) {
+	    err_logo(BAD_DATA, arg);
+	} else {
+	    animation_speed = speed;
+	}
+    }
+    return(UNBOUND);
+}
+
+NODE *lanimationspeed(NODE *args) {
+    return(make_floatnode(animation_speed));
 }
 
 NODE *lshowturtle(NODE *args) {
