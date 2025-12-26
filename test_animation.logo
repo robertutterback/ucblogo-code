@@ -1,0 +1,23 @@
+; Test animation commands
+print [Testing animation commands]
+
+; Check that animationspeed command exists and returns 0 by default
+print sentence [Default animation speed:] animationspeed
+
+; Set animation speed to 1000 units/sec
+setanimationspeed 1000
+print sentence [After setting to 1000:] animationspeed
+
+; Test with different speeds
+setanimationspeed 500
+print sentence [After setting to 500:] animationspeed
+
+setanimationspeed 0
+print sentence [After setting to 0 (disabled):] animationspeed
+
+; Test that negative values are rejected
+print [Testing negative value (should show error):]
+catch "error [setanimationspeed -100]
+
+print [All tests completed successfully!]
+bye
